@@ -56,10 +56,9 @@ class GPT2SentimentClassifier(torch.nn.Module):
     '''
     TODO: BERT 임베딩의 감정 분류를 위해 필요한 인스턴스 변수를 생성하시오.
     '''
+    ### 완성시켜야 할 빈 코드 블록
     self.dropout = torch.nn.Dropout(config.hidden_dropout_prob)
     self.classifier = torch.nn.Linear(config.hidden_size, self.num_labels)
-    ### 완성시켜야 할 빈 코드 블록
-    #raise NotImplementedError
 
 
   def forward(self, input_ids, attention_mask):

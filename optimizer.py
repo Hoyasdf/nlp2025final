@@ -59,7 +59,7 @@ class AdamW(Optimizer):
                         자세한 내용은 기본 프로젝트 안내문을 참조할 것.
                 '''
                 ### 완성시켜야 할 빈 코드 블록
-                 # 상태 초기화 (첫 호출 시)
+                # 상태 초기화 (첫 호출 시)
                 if len(state) == 0:
                     state["step"] = 0
                     state["exp_avg"] = torch.zeros_like(p.data)  # m
@@ -96,7 +96,5 @@ class AdamW(Optimizer):
                 # 4. weight decay 적용 (decoupled)
                 if weight_decay > 0:
                     p.data.add_(p.data, alpha=-alpha * weight_decay)
-
-                #raise NotImplementedError
 
         return loss

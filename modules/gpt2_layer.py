@@ -43,12 +43,12 @@ class GPT2Layer(nn.Module):
       - Feed-Forward layer: hidden states를 추가로 refine하기 위해 변환을 적용한다.
     """
     ### 완성시켜야 할 빈 코드 블록
-    # 1. LayerNorm + Self-Attention
+    # 1. Norm + Self-Attention
     normed_hidden = self.attention_layer_norm(hidden_states)
     attention_output = self.self_attention(normed_hidden, attention_mask)
     hidden_states = self.add(hidden_states, attention_output, self.attention_dense, self.attention_dropout)
 
-    # 2. LayerNorm + Feedforward
+    # 2. Norm + Feedforward
     normed_hidden = self.out_layer_norm(hidden_states)
     intermediate_output = self.interm_af(self.interm_dense(normed_hidden))
     hidden_states = self.add(hidden_states, intermediate_output, self.out_dense, self.out_dropout)

@@ -40,6 +40,7 @@ class ParaphraseDetectionDataset(Dataset):
   def collate_fn(self, all_data):
     sent1 = [x[0] for x in all_data]
     sent2 = [x[1] for x in all_data]
+    # 라벨을 1과 0으로 
     labels = torch.LongTensor([x[2] for x in all_data])
     #labels = ['yes' if label == 1 else 'no' for label in [x[2] for x in all_data]]
     #labels = self.tokenizer(labels, return_tensors='pt', padding=True, truncation=True)['input_ids']
