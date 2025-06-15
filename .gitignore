@@ -1,3 +1,4 @@
+_pycache_
 *pretest
 *~
 *.pyc
@@ -5,3 +6,6 @@
 *.pkl
 .idea/
 out/
+predictions/
+*acc*.txt
+test.py

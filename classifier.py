@@ -56,8 +56,10 @@ class GPT2SentimentClassifier(torch.nn.Module):
     '''
     TODO: BERT 임베딩의 감정 분류를 위해 필요한 인스턴스 변수를 생성하시오.
     '''
+    self.dropout = torch.nn.Dropout(config.hidden_dropout_prob)
+    self.classifier = torch.nn.Linear(config.hidden_size, self.num_labels)
     ### 완성시켜야 할 빈 코드 블록
-    raise NotImplementedError
+    #raise NotImplementedError
 
 
   def forward(self, input_ids, attention_mask):
@@ -69,7 +71,16 @@ class GPT2SentimentClassifier(torch.nn.Module):
         적절한 반환값이 무엇인지 생각해보시오.
     '''
     ### 완성시켜야 할 빈 코드 블록
-    raise NotImplementedError
+    outputs = self.gpt(input_ids=input_ids, attention_mask=attention_mask)
+    last_hidden_state = outputs["last_hidden_state"]    # [batch_size, seq_len, hidden_size]
+
+    # 각 시퀀스의 마지막 유효 토큰 인덱스 구하기
+    last_token_indices = attention_mask.sum(dim=1) - 1  # padding을 제외한 실제 토큰 위치
+    batch_size = last_hidden_state.size(0)
+    last_hidden = last_hidden_state[torch.arange(batch_size), last_token_indices]  # [batch_size, hidden_size]
+
+    logits = self.classifier(self.dropout(last_hidden))  # [batch_size, num_labels]
+    return logits
 
 
 class SentimentDataset(Dataset):
@@ -152,13 +163,13 @@ def load_data(filename, flag='train'):
   num_labels = {}
   data = []
   if flag == 'test':
-    with open(filename, 'r') as fp:
+    with open(filename, 'r', encoding='utf-8') as fp:
       for record in csv.DictReader(fp, delimiter='\t'):
         sent = record['sentence'].lower().strip()
         sent_id = record['id'].lower().strip()
         data.append((sent, sent_id))
   else:
-    with open(filename, 'r') as fp:
+    with open(filename, 'r', encoding='utf-8') as fp:
       for record in csv.DictReader(fp, delimiter='\t'):
         sent = record['sentence'].lower().strip()
         sent_id = record['id'].lower().strip()
@@ -305,6 +316,8 @@ def train(args):
       save_model(model, optimizer, args, config, args.filepath)
 
     print(f"Epoch {epoch}: train loss :: {train_loss :.3f}, train acc :: {train_acc :.3f}, dev acc :: {dev_acc :.3f}")
+    with open("acc.txt", "a+") as f:
+      f.write(f"train Epoch {epoch}: train loss :: {train_loss :.3f}, train acc :: {train_acc :.3f}, dev acc :: {dev_acc :.3f}\n")
 
 
 def test(args):
@@ -333,6 +346,9 @@ def test(args):
     test_pred, test_sents, test_sent_ids = model_test_eval(test_dataloader, model, device)
     print('DONE Test')
 
+    with open("acc.txt", "a+") as f:
+      f.write(f"test dev acc :: {dev_acc :.3f}, dev f1 :: {dev_f1 :.3f} file:{args.filepath}\n")
+    
     with open(args.dev_out, "w+") as f:
       print(f"dev acc :: {dev_acc :.3f}")
       f.write(f"id \t Predicted_Sentiment \n")

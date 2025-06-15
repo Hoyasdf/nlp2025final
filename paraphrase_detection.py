@@ -70,7 +70,25 @@ class ParaphraseGPT(nn.Module):
     패러프레이즈가 아닌 경우에는 토큰 "no" (BPE index 3919)가 될 것이다.
     """
     ### 완성시켜야 할 빈 코드 블록
-    raise NotImplementedError
+    """
+    input_ids: [batch_size, seq_len]
+    attention_mask: [batch_size, seq_len]
+    """
+    # GPT-2로부터 hidden states 가져오기
+    outputs = self.gpt(input_ids=input_ids, attention_mask=attention_mask)
+    last_hidden_state = outputs["last_hidden_state"]  # [batch_size, seq_len, hidden_size]
+
+    # 각 시퀀스의 마지막 실제 토큰 위치 구하기 (padding 제외)
+    last_token_indices = attention_mask.sum(dim=1) - 1  # [batch_size]
+    batch_size = last_hidden_state.size(0)
+
+    # 마지막 유효 토큰의 hidden state 선택
+    last_hidden = last_hidden_state[torch.arange(batch_size), last_token_indices]  # [batch_size, hidden_size]
+
+    # 이 hidden state를 paraphrase classification head에 통과
+    logits = self.paraphrase_detection_head(last_hidden)  # [batch_size, 2]
+
+    return logits
 
 
 
@@ -142,6 +160,8 @@ def train(args):
       save_model(model, optimizer, args, args.filepath)
 
     print(f"Epoch {epoch}: train loss :: {train_loss :.3f}, dev acc :: {dev_acc :.3f}")
+    with open("pd_acc.txt", "a+") as f:
+      f.write(f"Epoch {epoch}: train loss :: {train_loss :.3f}, dev acc :: {dev_acc :.3f}\n")
 
 
 @torch.no_grad()
@@ -169,6 +189,8 @@ def test(args):
 
   dev_para_acc, _, dev_para_y_pred, _, dev_para_sent_ids = model_eval_paraphrase(para_dev_dataloader, model, device)
   print(f"dev paraphrase acc :: {dev_para_acc :.3f}")
+  with open("pd_acc.txt", "a+") as f:
+      f.write(f"dev paraphrase acc :: {dev_para_acc :.3f}\n")
   test_para_y_pred, test_para_sent_ids = model_test_paraphrase(para_test_dataloader, model, device)
 
   with open(args.para_dev_out, "w+") as f:

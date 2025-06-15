@@ -33,9 +33,33 @@ class CausalSelfAttention(nn.Module):
     return proj
 
   def attention(self, key, query, value, attention_mask):
-
     ### 완성시켜야 할 빈 코드 블록
-    raise NotImplementedError
+    # query, key, value: [bs, num_heads, seq_len, head_dim]
+    bs, h, T, d = query.size()
+
+    # 1. 어텐션 스코어 계산
+    scores = torch.matmul(query, key.transpose(-2, -1)) / (self.attention_head_size ** 0.5)  # [bs, h, T, T]
+
+    # 2. 어텐션 마스크 적용
+    causal_mask = torch.tril(torch.ones(T, T, device=scores.device)).unsqueeze(0).unsqueeze(0)  # [1, 1, T, T]
+    scores = scores.masked_fill(causal_mask == 0, float("-inf"))
+    
+    if attention_mask is not None:
+        scores = scores + attention_mask
+
+    # 3. 소프트 맥스 적용
+    attn_weights = torch.softmax(scores, dim=-1)  # [bs, h, T, T]
+
+    # 4. 드롭아웃 적용
+    attn_weights = self.dropout(attn_weights)
+
+    # 5. 가중치와 밸류 곱
+    context = torch.matmul(attn_weights, value)  # [bs, h, T, d_k]
+
+    # 6. 텐서 순서 변경
+    context = rearrange(context, 'b h t d -> b t (h d)')
+    
+    return context
 
 
   def forward(self, hidden_states, attention_mask):
