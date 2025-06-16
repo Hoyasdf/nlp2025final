@@ -214,8 +214,9 @@ def get_args():
   parser.add_argument("--para_test_out", type=str, default="predictions/para-test-output.csv")
 
   parser.add_argument("--seed", type=int, default=11711)
-  parser.add_argument("--epochs", type=int, default=10)
+  parser.add_argument("--epochs", type=int, default=20)
   parser.add_argument("--use_gpu", action='store_true')
+  parser.add_argument("--test_only", action='store_true')
 
   parser.add_argument("--batch_size", help='sst: 64, cfimdb: 8 can fit a 12GB GPU', type=int, default=8)
   parser.add_argument("--lr", type=float, help="learning rate", default=1e-5)
@@ -248,7 +249,9 @@ def add_arguments(args):
 
 if __name__ == "__main__":
   args = get_args()
-  args.filepath = f'{args.epochs}-{args.lr}-paraphrase.pt'  # 경로명 저장.
+  args.filepath = f'paraphrase.pt'  # 경로명 저장.
   seed_everything(args.seed)  # 재현성을 위한 random seed 고정.
-  train(args)
+  
+  if args.test_only is False:
+    train(args)
   test(args)

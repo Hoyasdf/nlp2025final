@@ -8,4 +8,4 @@ _pycache_
 out/
 predictions/
 *acc*.txt
-test.py
+test*.py

@@ -363,7 +363,7 @@ def test(args):
 def get_args():
   parser = argparse.ArgumentParser()
   parser.add_argument("--seed", type=int, default=11711)
-  parser.add_argument("--epochs", type=int, default=10)
+  parser.add_argument("--epochs", type=int, default=20)
   parser.add_argument("--fine-tune-mode", type=str,
                       help='last-linear-layer: the GPT parameters are frozen and the task specific head parameters are updated; full-model: GPT parameters are updated as well',
                       choices=('last-linear-layer', 'full-model'), default="last-linear-layer")
@@ -373,6 +373,7 @@ def get_args():
   parser.add_argument("--hidden_dropout_prob", type=float, default=0.3)
   parser.add_argument("--lr", type=float, help="learning rate, default lr for 'pretrain': 1e-3, 'finetune': 1e-5",
                       default=1e-3)
+  parser.add_argument("--test_only", action='store_true')
 
   args = parser.parse_args()
   return args
@@ -398,7 +399,8 @@ if __name__ == "__main__":
     test_out='predictions/' + args.fine_tune_mode + '-sst-test-out.csv'
   )
 
-  train(config)
+  if args.test_only is False:
+    train(config)
 
   print('Evaluating on SST...')
   test(config)
@@ -415,11 +417,34 @@ if __name__ == "__main__":
     dev='data/ids-cfimdb-dev.csv',
     test='data/ids-cfimdb-test-student.csv',
     fine_tune_mode=args.fine_tune_mode,
-    dev_out='predictions/' + args.fine_tune_mode + '-cfimdb-dev-out.csv',
-    test_out='predictions/' + args.fine_tune_mode + '-cfimdb-test-out.csv'
+    dev_out='predictions/' + args.fine_tune_mode + '-yelp-dev-out.csv',
+    test_out='predictions/' + args.fine_tune_mode + '-yelp-test-out.csv'
   )
 
-  train(config)
+  if args.test_only is False:
+    train(config)
 
   print('Evaluating on cfimdb...')
+  test(config)
+
+  # 새로운 실험에 사용한 데이터셋
+  print('Training Sentiment Classifier on sstyelp...')
+  config = SimpleNamespace(
+    filepath='sstyelp-classifier.pt',
+    lr=args.lr,
+    use_gpu=args.use_gpu,
+    epochs=args.epochs,
+    batch_size=8,
+    hidden_dropout_prob=args.hidden_dropout_prob,
+    train='data/sstyelp_train.csv',
+    dev='data/sstyelp_dev.csv',
+    test='data/sstyelp_test.csv',
+    fine_tune_mode=args.fine_tune_mode,
+    dev_out='predictions/' + args.fine_tune_mode + '-yelp-dev-out.csv',
+    test_out='predictions/' + args.fine_tune_mode + '-yelp-test-out.csv'
+  )
+  if args.test_only is False:
+    train(config)
+
+  print('Evaluating on sstyelp...')
   test(config)
