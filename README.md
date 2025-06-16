@@ -8,17 +8,17 @@
 * https://drive.google.com/drive/folders/1wbDCfleDOlcVtYrK-y5kUHo79BKDkq5k?usp=sharing
 * 
 # Sentiment Analysis
-학습&테스트 수행<br/>
-* python classifier.py --use_gpu
-테스트만 수행<br/>
+학습&테스트 수행
+* python classifier.py --use_gpu<br/>
+테스트만 수행
 * python classifier.py --use_gpu --test_only --para_test "테스트 데이터셋"
 
 # Paraphrase Detection
-학습&기본 경로 테스트 수행<br/>
-* python paraphrase_detection.py --use_gpu
-테스트만 수행<br/>
-* python paraphrase_detection.py --use_gpu --test_only --para_test "테스트 데이터셋 경로"
-학습&테스트 수행<br/>
+학습&기본 경로 테스트 수행
+* python paraphrase_detection.py --use_gpu<br/>
+테스트만 수행
+* python paraphrase_detection.py --use_gpu --test_only --para_test "테스트 데이터셋 경로"<br/>
+학습&테스트 수행
 * python paraphrase_detection.py --use_gpu --para_test "테스트 데이터셋 경로"
 
 
