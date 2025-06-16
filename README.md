@@ -4,13 +4,13 @@
 * conda env create -f env.yml
 * conda activate nlp_final  
 
-Sentiment Analysis
+# Sentiment Analysis
 학습&테스트 수행
 * python classifier.py --use_gpu
 테스트만 수행
 * python classifier.py --use_gpu --test_only --para_test "테스트 데이터셋"
 
-Paraphrase Detection
+# Paraphrase Detection
 학습&기본 경로 테스트 수행
 * python paraphrase_detection.py --use_gpu
 테스트만 수행
